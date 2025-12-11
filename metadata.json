@@ -1,0 +1,5 @@
+{
+  "name": "ChatGPT Wrapped",
+  "description": "Visualize your AI interactions with a Spotify Wrapped-style storytelling experience. Upload your ChatGPT history or paste text to generate your AI personality profile.",
+  "requestFramePermissions": []
+}
