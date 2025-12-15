@@ -1,14 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, ArrowRight, FileJson, Sparkles, Database } from 'lucide-react';
+import { Play, ArrowRight, Sparkles, Database } from 'lucide-react';
 import { WrappedData } from '../types';
 
 interface WrappedPreviewProps {
   data: WrappedData;
   onPlay: () => void;
+  onOpenInfographic: () => void;
 }
 
-const WrappedPreview: React.FC<WrappedPreviewProps> = ({ data, onPlay }) => {
+const WrappedPreview: React.FC<WrappedPreviewProps> = ({ data, onPlay, onOpenInfographic }) => {
   return (
     <div className="min-h-screen bg-black text-white p-4 md:p-8 flex items-center justify-center">
         <motion.div 
@@ -20,12 +21,12 @@ const WrappedPreview: React.FC<WrappedPreviewProps> = ({ data, onPlay }) => {
             <div className="flex-1 p-8 border-b md:border-b-0 md:border-r border-zinc-800 bg-black/20 flex flex-col overflow-hidden">
                 <div className="flex items-center gap-2 mb-6 text-zinc-400">
                     <Database size={18} />
-                    <h3 className="text-xs font-bold uppercase tracking-widest">The Source Data</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-widest">The Raw Truth</h3>
                 </div>
                 
-                <h2 className="text-3xl font-black text-white mb-2">Analysis Complete</h2>
+                <h2 className="text-3xl font-black text-white mb-2">Analysis Complete.</h2>
                 <p className="text-sm text-zinc-400 mb-8">
-                    We've crunched the numbers from your year in text.
+                    We've dissected your chat history. The patterns are undeniable.
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 mb-8">
@@ -62,7 +63,7 @@ const WrappedPreview: React.FC<WrappedPreviewProps> = ({ data, onPlay }) => {
             <div className="flex-1 p-8 flex flex-col bg-zinc-900 overflow-hidden relative">
                  <div className="flex items-center gap-2 mb-6 text-purple-400">
                     <Sparkles size={18} />
-                    <h3 className="text-xs font-bold uppercase tracking-widest">The Result</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-widest">Your AI Identity</h3>
                 </div>
 
                 <div className="flex-1 flex flex-col items-center justify-center relative z-10">
@@ -96,14 +97,21 @@ const WrappedPreview: React.FC<WrappedPreviewProps> = ({ data, onPlay }) => {
                     </motion.div>
                 </div>
 
-                <div className="mt-8 relative z-20">
+                <div className="mt-8 relative z-20 flex flex-col gap-3">
                     <button 
                         onClick={onPlay}
                         className="w-full bg-white text-black font-bold py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-zinc-200 transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_-15px_rgba(255,255,255,0.5)] transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                         <Play size={20} fill="currentColor" /> 
-                        <span className="text-lg">Reveal Your Story</span> 
+                        <span className="text-lg">Reveal My Story</span> 
                         <ArrowRight size={20} />
+                    </button>
+                    
+                    <button 
+                        onClick={onOpenInfographic}
+                        className="w-full bg-zinc-800 text-zinc-300 font-bold py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors text-sm"
+                    >
+                        <Sparkles size={16} /> Instant AI Poster
                     </button>
                 </div>
             </div>

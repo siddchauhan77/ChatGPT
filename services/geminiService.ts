@@ -122,9 +122,9 @@ export const getManualAnalysisPrompt = (): string => {
     Message: (Final hype message)
 
     [MOMENTS]
-    - Quote: (Quote 1) | Reasoning: (Reason 1)
-    - Quote: (Quote 2) | Reasoning: (Reason 2)
-    - Quote: (Quote 3) | Reasoning: (Reason 3)
+    - Quote: (Most insightful/funny/interesting quote 1) | Reasoning: (Why you picked it)
+    - Quote: (Most insightful/funny/interesting quote 2) | Reasoning: (Why you picked it)
+    - Quote: (Most insightful/funny/interesting quote 3) | Reasoning: (Why you picked it)
 
     ---END REPORT---
     `;
@@ -265,6 +265,7 @@ export const generateInfographicImage = async (data: WrappedData, usePro: boolea
         4. Text Elements:
            - Include the Power Word: "${data.persona.powerWord}" in large bold text.
            - List top themes: ${data.persona.topThemes.slice(0,3).join(", ")}.
+           - Featured Quote: "${data.persona.unhingedMoment.quote.slice(0, 50)}..."
 
         STYLE GUIDE:
         - Use RICH VIVID VISUAL METAPHORS AND ANALOGIES based on the archetype "${data.persona.archetype}".

@@ -24,12 +24,13 @@ const IntroSlide: React.FC<{ data: WrappedData }> = () => {
       </motion.h1>
       
       <motion.p
-        className="text-xl text-zinc-300 font-medium"
+        className="text-xl text-zinc-300 font-medium max-w-md mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5, duration: 0.8, ease: "easeOut" }}
       >
-        The year you asked... everything.
+        You spent hours talking to it.<br/>
+        <span className="text-white font-bold">Now find out what it really thinks of you.</span>
       </motion.p>
 
       <motion.div
@@ -42,7 +43,7 @@ const IntroSlide: React.FC<{ data: WrappedData }> = () => {
              <div className="absolute inset-0 border-4 border-zinc-800 rounded-full"></div>
              <div className="absolute inset-0 border-4 border-green-500 rounded-full border-t-transparent animate-spin"></div>
         </div>
-        <p className="text-xs text-green-500/50 mt-4 uppercase tracking-widest font-bold animate-pulse">Analyzing Logs...</p>
+        <p className="text-xs text-green-500/50 mt-4 uppercase tracking-widest font-bold animate-pulse">Exposing Secrets...</p>
       </motion.div>
     </div>
   );

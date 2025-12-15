@@ -6,7 +6,7 @@ import { Sparkles, ImageIcon, Zap, Lock, RotateCcw } from 'lucide-react';
 interface CreatorSlideProps {
   data: WrappedData;
   restart: () => void;
-  onViewInfographic?: () => void;
+  onViewInfographic?: (isPro: boolean) => void;
 }
 
 const CreatorSlide: React.FC<CreatorSlideProps> = ({ data, restart, onViewInfographic }) => {
@@ -41,36 +41,43 @@ const CreatorSlide: React.FC<CreatorSlideProps> = ({ data, restart, onViewInfogr
             </p>
         </div>
 
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 backdrop-blur-md mb-8">
-            <div className="flex items-center justify-center gap-6 mb-6">
-                <div className="text-center">
-                    <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <Zap size={18} className="text-yellow-400" />
-                    </div>
-                    <p className="text-[10px] font-bold text-zinc-300 uppercase">Flash</p>
-                    <p className="text-[9px] text-zinc-500">Free & Fast</p>
+        <div className="grid grid-cols-2 gap-4 mb-8">
+             {/* Flash Trigger */}
+             <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (onViewInfographic) onViewInfographic(false);
+                }}
+                className="flex flex-col items-center bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl backdrop-blur-md hover:bg-zinc-800 transition-colors"
+            >
+                <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center mb-3">
+                    <Zap size={18} className="text-yellow-400" />
                 </div>
-                <div className="h-8 w-px bg-zinc-700"></div>
-                <div className="text-center">
-                    <div className="w-10 h-10 bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-2 border border-purple-500/30">
-                        <Lock size={18} className="text-purple-400" />
-                    </div>
-                    <p className="text-[10px] font-bold text-purple-300 uppercase">Pro</p>
-                    <p className="text-[9px] text-zinc-500">Nano Banana</p>
-                </div>
-            </div>
+                <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Flash</p>
+                <p className="text-[10px] text-zinc-500 mb-3">Free & Fast</p>
+                <div className="w-full bg-zinc-700 py-2 rounded-lg text-[10px] font-bold text-white">Generate</div>
+            </motion.button>
 
+            {/* Pro Trigger */}
             <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={(e) => {
                     e.stopPropagation();
-                    if (onViewInfographic) onViewInfographic();
+                    if (onViewInfographic) onViewInfographic(true);
                 }}
-                className="w-full bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-white/10 group"
+                className="flex flex-col items-center bg-purple-900/10 border border-purple-500/30 p-4 rounded-2xl backdrop-blur-md hover:bg-purple-900/20 transition-colors"
             >
-                <Sparkles size={18} className="group-hover:text-purple-600 transition-colors" /> 
-                Enter Creator Studio
+                <div className="w-10 h-10 bg-purple-900/30 rounded-full flex items-center justify-center mb-3 border border-purple-500/30">
+                    <Lock size={18} className="text-purple-400" />
+                </div>
+                <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Pro</p>
+                <p className="text-[10px] text-zinc-500 mb-3">Nano Banana</p>
+                <div className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-2 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-1">
+                     Generate <Sparkles size={10} />
+                </div>
             </motion.button>
         </div>
 

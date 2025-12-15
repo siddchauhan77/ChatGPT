@@ -1,20 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { WrappedData } from '../types';
-import { ArrowLeft, Download, Sparkles, Image as ImageIcon, Loader2, BadgeCheck, Lock, Zap } from 'lucide-react';
+import { X, Download, Sparkles, Image as ImageIcon, Loader2, BadgeCheck, Lock, Zap } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { generateInfographicImage } from '../services/geminiService';
 
 interface InfographicProps {
   data: WrappedData;
   onBack: () => void;
+  initialProMode?: boolean;
 }
 
-const Infographic: React.FC<InfographicProps> = ({ data, onBack }) => {
+const Infographic: React.FC<InfographicProps> = ({ data, onBack, initialProMode = true }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(true);
   const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
-  const [isProMode, setIsProMode] = useState(true);
+  const [isProMode, setIsProMode] = useState(initialProMode);
 
   const handleDownload = async () => {
     if (contentRef.current) {
@@ -33,16 +34,22 @@ const Infographic: React.FC<InfographicProps> = ({ data, onBack }) => {
     setIsGenerating(true);
     try {
         // 1. If Pro Mode (Gemini 3 Pro), Request API Key
-        if (isProMode && window.aistudio) {
-            const hasKey = await window.aistudio.hasSelectedApiKey();
-            if (!hasKey) {
-                await window.aistudio.openSelectKey();
-                // Check again to be safe
-                const hasKeyAfter = await window.aistudio.hasSelectedApiKey();
-                if (!hasKeyAfter) {
-                    setIsGenerating(false);
-                    return;
+        // Safety check: ensure window.aistudio exists before calling it
+        if (isProMode && typeof window !== 'undefined' && (window as any).aistudio) {
+            const aiStudio = (window as any).aistudio;
+            try {
+                const hasKey = await aiStudio.hasSelectedApiKey();
+                if (!hasKey) {
+                    await aiStudio.openSelectKey();
+                    // Check again to be safe
+                    const hasKeyAfter = await aiStudio.hasSelectedApiKey();
+                    if (!hasKeyAfter) {
+                        setIsGenerating(false);
+                        return; // User cancelled
+                    }
                 }
+            } catch (err) {
+                console.warn("AI Studio key selection failed, trying generation anyway...", err);
             }
         }
 
@@ -51,10 +58,17 @@ const Infographic: React.FC<InfographicProps> = ({ data, onBack }) => {
         if (imageUrl) {
             setAiImageUrl(imageUrl);
             setShowConfirmation(false); // Close confirmation view
+        } else {
+            alert("The AI didn't return an image. Please try again.");
         }
-    } catch (e) {
+    } catch (e: any) {
         console.error("Failed to generate poster", e);
-        alert("Could not generate image. Please try again or check your API key.");
+        let msg = "Could not generate image. ";
+        if (e.message?.includes("API key")) msg += "Please check your API key.";
+        else if (e.message?.includes("429")) msg += "Too many requests. Try again in a minute.";
+        else msg += "Please try again.";
+        
+        alert(msg);
     } finally {
         setIsGenerating(false);
     }
@@ -70,13 +84,13 @@ const Infographic: React.FC<InfographicProps> = ({ data, onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center py-12 px-4 relative overflow-y-auto">
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center py-12 px-4 relative overflow-y-auto z-[200]">
       <div className="fixed top-6 left-6 z-50 flex gap-2">
         <button 
             onClick={onBack}
             className="bg-white/10 p-3 rounded-full backdrop-blur-md hover:bg-white/20 transition-colors text-white"
         >
-            <ArrowLeft size={20} />
+            <X size={20} />
         </button>
       </div>
 
@@ -89,7 +103,7 @@ const Infographic: React.FC<InfographicProps> = ({ data, onBack }) => {
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center w-full max-w-6xl">
+      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center w-full max-w-6xl mt-12">
         
         {/* Main Stats Column */}
         <div className="flex flex-col items-center w-full lg:w-auto">

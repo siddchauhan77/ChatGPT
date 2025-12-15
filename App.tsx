@@ -7,7 +7,6 @@ import StoryPlayer from './components/StoryPlayer';
 import Infographic from './components/Infographic';
 import CaseStudyModal from './components/CaseStudyModal';
 import WrappedPreview from './components/WrappedPreview';
-import { Sparkles } from 'lucide-react';
 import { playSound } from './utils/sound';
 
 const CASE_STUDY_DATA: WrappedData = {
@@ -69,8 +68,9 @@ const CASE_STUDY_DATA: WrappedData = {
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [wrappedData, setWrappedData] = useState<WrappedData | null>(null);
-  const [viewMode, setViewMode] = useState<'input' | 'preview' | 'story' | 'infographic'>('input');
+  const [viewMode, setViewMode] = useState<'input' | 'preview' | 'story'>('input');
   const [showCaseStudy, setShowCaseStudy] = useState(false);
+  const [showInfographic, setShowInfographic] = useState(false);
 
   const processData = async (input: string) => {
     setIsLoading(true);
@@ -105,6 +105,14 @@ const App: React.FC = () => {
       playSound('reveal');
   };
 
+  // New handler for the 3rd button
+  const handleDirectInfographic = (data: WrappedData) => {
+      setWrappedData(data);
+      setViewMode('preview'); // Set background to preview
+      setShowInfographic(true); // Open modal immediately
+      playSound('reveal');
+  };
+
   const handleCaseStudyRun = (data: WrappedData) => {
       setShowCaseStudy(false);
       handleManualData(data);
@@ -116,27 +124,30 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-green-500 selection:text-black font-sans">
+    <div className="min-h-screen bg-black text-white selection:bg-green-500 selection:text-black font-sans relative">
       
+      {showInfographic && wrappedData && (
+        <div className="fixed inset-0 z-[100] animate-in fade-in slide-in-from-bottom-10 duration-300 bg-zinc-950">
+             <Infographic 
+                data={wrappedData} 
+                onBack={() => setShowInfographic(false)}
+            />
+        </div>
+      )}
+
       {viewMode === 'preview' && wrappedData && (
         <WrappedPreview 
             data={wrappedData} 
             onPlay={startStory}
+            onOpenInfographic={() => setShowInfographic(true)}
         />
       )}
 
       {viewMode === 'story' && wrappedData && (
         <StoryPlayer 
             data={wrappedData} 
-            onClose={() => setViewMode('input')}
-            onViewInfographic={() => setViewMode('infographic')}
-        />
-      )}
-
-      {viewMode === 'infographic' && wrappedData && (
-        <Infographic 
-            data={wrappedData} 
-            onBack={() => setViewMode('story')}
+            onClose={() => setViewMode('preview')}
+            onOpenInfographic={() => setShowInfographic(true)}
         />
       )}
 
@@ -150,13 +161,15 @@ const App: React.FC = () => {
                     ChatGPT<br/>Wrapped
                 </h1>
                 <p className="text-xl text-zinc-400 max-w-md mx-auto">
-                    The secret prompt that unlocks your 2025 AI profile.
+                    The AI knows you better than you know yourself.<br/>
+                    <span className="text-white font-bold">Time to see the proof.</span>
                 </p>
             </div>
 
             <InputSection 
                 onDataReady={processData} 
                 onManualDataReady={handleManualData} 
+                onDirectInfographic={handleDirectInfographic}
                 isLoading={isLoading} 
                 onShowCaseStudy={() => setShowCaseStudy(true)}
             />

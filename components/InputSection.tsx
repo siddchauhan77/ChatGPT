@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Play, CheckCircle2, Clipboard, HelpCircle } from 'lucide-react';
+import { Copy, Play, CheckCircle2, Clipboard, HelpCircle, Sparkles, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getManualAnalysisPrompt } from '../services/geminiService';
 import { WrappedData } from '../types';
@@ -7,11 +7,12 @@ import { WrappedData } from '../types';
 interface InputSectionProps {
   onDataReady: (text: string) => void;
   onManualDataReady: (data: WrappedData) => void;
+  onDirectInfographic: (data: WrappedData) => void; // New prop for direct access
   isLoading: boolean;
   onShowCaseStudy?: () => void;
 }
 
-const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCaseStudy }) => {
+const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onDirectInfographic, onShowCaseStudy }) => {
   const [activeTab, setActiveTab] = useState<'prompt' | 'result'>('prompt');
   const [manualInput, setManualInput] = useState('');
   const [isCopied, setIsCopied] = useState(false);
@@ -25,7 +26,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCa
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  const processManualText = () => {
+  const parseAndValidate = (): WrappedData | null => {
     const text = manualInput;
     
     // Helper Regex
@@ -155,12 +156,23 @@ const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCa
              throw new Error("Could not parse key fields. Please ensure the format matches the prompt output.");
         }
 
-        onManualDataReady(data);
+        return data;
 
     } catch (e: any) {
         console.error("Parse Error:", e);
         alert(`Oops! We couldn't read the report.\n\nError: ${e.message}\n\nMake sure you copied the output starting from [STATS] to the end.`);
+        return null;
     }
+  };
+
+  const handleProcess = () => {
+      const data = parseAndValidate();
+      if (data) onManualDataReady(data);
+  };
+
+  const handleInstantInfographic = () => {
+      const data = parseAndValidate();
+      if (data) onDirectInfographic(data);
   };
 
   return (
@@ -172,14 +184,14 @@ const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCa
                 className={`flex-1 py-4 text-sm md:text-base rounded-xl font-bold transition-all relative z-10 flex items-center justify-center gap-2 ${activeTab === 'prompt' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${activeTab === 'prompt' ? 'bg-green-500 text-black' : 'bg-zinc-800'}`}>1</span>
-                Copy Prompt
+                Steal Prompt
             </button>
             <button 
                 onClick={() => setActiveTab('result')}
                 className={`flex-1 py-4 text-sm md:text-base rounded-xl font-bold transition-all relative z-10 flex items-center justify-center gap-2 ${activeTab === 'result' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${activeTab === 'result' ? 'bg-green-500 text-black' : 'bg-zinc-800'}`}>2</span>
-                Paste Result
+                Paste Evidence
             </button>
             
             {/* Sliding Background */}
@@ -208,9 +220,9 @@ const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCa
                         transition={{ duration: 0.2 }}
                     >
                         <div className="text-center mb-6">
-                            <h3 className="text-xl font-bold text-white mb-2">The Secret Prompt</h3>
-                            <p className="text-zinc-400 text-sm">
-                                Copy this prompt and paste it into <strong>ChatGPT, Claude, or Gemini</strong> to unlock your personal year-end analysis.
+                            <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">The "Truth Serum" Prompt</h3>
+                            <p className="text-zinc-400 text-sm leading-relaxed">
+                                Don't just export your data. <strong className="text-white">Interrogate it.</strong> Copy the command below and paste it into ChatGPT, Claude, or Gemini. It forces the AI to reveal your psychological profile.
                             </p>
                         </div>
                         
@@ -227,7 +239,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCa
                                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all shadow-lg ${isCopied ? 'bg-green-500 text-black' : 'bg-white text-black hover:bg-zinc-200'}`}
                                 >
                                     {isCopied ? <CheckCircle2 size={14} /> : <Copy size={14} />}
-                                    {isCopied ? 'Copied!' : 'Copy Prompt'}
+                                    {isCopied ? 'STOLEN!' : 'COPY COMMAND'}
                                 </button>
                             </div>
                         </div>
@@ -237,7 +249,7 @@ const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCa
                                 onClick={() => setActiveTab('result')}
                                 className="text-zinc-400 hover:text-white text-sm font-medium flex items-center gap-2 transition-colors"
                             >
-                                Next Step <Clipboard size={14} />
+                                I have the data. Next Step <Clipboard size={14} />
                             </button>
                         </div>
                     </motion.div>
@@ -250,28 +262,38 @@ const InputSection: React.FC<InputSectionProps> = ({ onManualDataReady, onShowCa
                         transition={{ duration: 0.2 }}
                     >
                         <div className="text-center mb-6">
-                            <h3 className="text-xl font-bold text-white mb-2">Paste The Report</h3>
+                            <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Paste The Evidence</h3>
                             <p className="text-zinc-400 text-sm">
-                                Paste the <strong>entire text report</strong> returned by the AI (including [STATS], [PERSONA], etc.).
+                                Drop the <strong>entire raw report</strong> here. We don't save it. We just turn it into a cinematic experience.
                             </p>
                         </div>
 
                         <div className="relative mb-6">
                             <textarea
-                                className="w-full h-48 bg-black/50 border border-zinc-700 rounded-xl p-4 text-zinc-300 text-xs font-mono resize-none focus:outline-none focus:border-green-500 transition-colors placeholder:text-zinc-700"
+                                className="w-full h-40 bg-black/50 border border-zinc-700 rounded-xl p-4 text-zinc-300 text-xs font-mono resize-none focus:outline-none focus:border-green-500 transition-colors placeholder:text-zinc-700"
                                 placeholder={`[STATS]\nTotal Messages: 150\n...\n[PERSONA]\nArchetype: The Visionary\n...`}
                                 value={manualInput}
                                 onChange={(e) => setManualInput(e.target.value)}
                             />
                         </div>
 
-                        <button
-                            onClick={processManualText}
-                            disabled={!manualInput.trim()}
-                            className="w-full bg-green-500 text-black font-bold py-4 rounded-xl hover:bg-green-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 transform active:scale-95"
-                        >
-                            <Play size={20} fill="currentColor" /> Generate Wrapped
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={handleProcess}
+                                disabled={!manualInput.trim()}
+                                className="flex-1 bg-white text-black font-black py-4 rounded-xl hover:bg-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg transform active:scale-95"
+                            >
+                                <Play size={20} fill="currentColor" /> REVEAL STORY
+                            </button>
+
+                            <button
+                                onClick={handleInstantInfographic}
+                                disabled={!manualInput.trim()}
+                                className="flex-1 bg-zinc-800 text-zinc-300 font-bold py-4 rounded-xl hover:bg-zinc-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-zinc-700 hover:text-white active:scale-95"
+                            >
+                                <Sparkles size={18} /> INSTANT POSTER
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

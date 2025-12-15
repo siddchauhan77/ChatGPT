@@ -9,18 +9,18 @@ import ThemesSlide from './slides/ThemesSlide';
 import AnalysisSlide from './slides/AnalysisSlide';
 import ChaoticSlide from './slides/ChaoticSlide';
 import RabbitHoleSlide from './slides/RabbitHoleSlide';
+import MomentsSlide from './slides/MomentsSlide';
 import PersonaSlide from './slides/PersonaSlide';
 import SummarySlide from './slides/SummarySlide';
-import CreatorSlide from './slides/CreatorSlide';
 import { playSound } from '../utils/sound';
 
 interface StoryPlayerProps {
   data: WrappedData;
   onClose: () => void;
-  onViewInfographic: () => void;
+  onOpenInfographic: () => void;
 }
 
-const StoryPlayer: React.FC<StoryPlayerProps> = ({ data, onClose, onViewInfographic }) => {
+const StoryPlayer: React.FC<StoryPlayerProps> = ({ data, onClose, onOpenInfographic }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const slideContainerRef = useRef<HTMLDivElement>(null);
@@ -33,9 +33,9 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ data, onClose, onViewInfograp
     { component: AnalysisSlide, duration: 10000, type: SlideType.ANALYSIS },
     { component: ChaoticSlide, duration: 6000, type: SlideType.CHAOTIC },
     { component: RabbitHoleSlide, duration: 7000, type: SlideType.RABBIT_HOLE },
+    { component: MomentsSlide, duration: 8000, type: SlideType.MOMENTS }, // Added new slide
     { component: PersonaSlide, duration: 7000, type: SlideType.PERSONA },
-    { component: SummarySlide, duration: 9000, type: SlideType.SUMMARY }, // Reduced duration to allow auto-advance
-    { component: CreatorSlide, duration: 999999, type: SlideType.CREATOR }, // Final slide stays
+    { component: SummarySlide, duration: 999999, type: SlideType.SUMMARY }, // Final slide stays
   ];
 
   const CurrentSlideComponent = slides[currentSlideIndex].component;
@@ -180,7 +180,7 @@ const StoryPlayer: React.FC<StoryPlayerProps> = ({ data, onClose, onViewInfograp
               <CurrentSlideComponent 
                 data={data} 
                 restart={restart} 
-                onViewInfographic={onViewInfographic}
+                onOpenInfographic={onOpenInfographic}
               />
             </motion.div>
           </AnimatePresence>

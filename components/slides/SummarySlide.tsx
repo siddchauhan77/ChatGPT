@@ -7,24 +7,31 @@ import html2canvas from 'html2canvas';
 interface SummaryProps {
     data: WrappedData;
     restart: () => void;
-    onViewInfographic?: () => void;
+    onOpenInfographic?: () => void;
 }
 
-const SummarySlide: React.FC<SummaryProps> = ({ data }) => {
+const SummarySlide: React.FC<SummaryProps> = ({ data, onOpenInfographic }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
 
   const handleDownloadCard = async (format: 'png' | 'jpeg', scale: number) => {
     setShowDownloadOptions(false);
     if (cardRef.current) {
-        const canvas = await html2canvas(cardRef.current, {
-            backgroundColor: null,
-            scale: scale
-        });
-        const link = document.createElement('a');
-        link.download = `Manifesto-${data.persona.archetype.replace(/\s+/g, '-')}-${scale}x.${format}`;
-        link.href = canvas.toDataURL(`image/${format}`, format === 'jpeg' ? 0.9 : 1.0);
-        link.click();
+        try {
+            const canvas = await html2canvas(cardRef.current, {
+                backgroundColor: null,
+                scale: scale,
+                useCORS: true,
+                logging: false
+            });
+            const link = document.createElement('a');
+            link.download = `Manifesto-${data.persona.archetype.replace(/\s+/g, '-')}-${scale}x.${format}`;
+            link.href = canvas.toDataURL(`image/${format}`, format === 'jpeg' ? 0.9 : 1.0);
+            link.click();
+        } catch (e) {
+            console.error("Save card failed:", e);
+            alert("Could not save the card. Please try taking a screenshot manually.");
+        }
     }
   };
 
@@ -59,36 +66,38 @@ const SummarySlide: React.FC<SummaryProps> = ({ data }) => {
         </motion.div>
       </div>
 
-      <div className="space-y-3 mt-auto relative z-20">
-         <div className="relative">
-             <motion.button 
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-zinc-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors text-sm"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setShowDownloadOptions(!showDownloadOptions);
-                }}
-            >
-                <Download size={16} /> Save Card <ChevronUp size={14} className={`transition-transform ${showDownloadOptions ? 'rotate-180' : ''}`} />
-            </motion.button>
-            
-            {/* Download Options Menu */}
-            <AnimatePresence>
-                {showDownloadOptions && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute bottom-full left-0 right-0 mb-2 bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl overflow-hidden z-30"
-                    >
-                        <div className="p-2 space-y-1">
-                            <button onClick={() => handleDownloadCard('png', 2)} className="w-full text-left px-3 py-2 hover:bg-zinc-700 rounded-lg text-xs text-white">PNG High Res (2x)</button>
-                            <button onClick={() => handleDownloadCard('png', 1)} className="w-full text-left px-3 py-2 hover:bg-zinc-700 rounded-lg text-xs text-zinc-300">PNG Standard</button>
-                            <button onClick={() => handleDownloadCard('jpeg', 2)} className="w-full text-left px-3 py-2 hover:bg-zinc-700 rounded-lg text-xs text-zinc-300">JPG High Res</button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+      <div className="space-y-3 mt-auto relative z-20 max-w-sm mx-auto w-full">
+         <div className="flex gap-2 justify-center">
+             <div className="relative w-full">
+                 <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-zinc-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-700 transition-colors text-sm border border-zinc-700"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDownloadOptions(!showDownloadOptions);
+                    }}
+                >
+                    <Download size={16} /> Save Card <ChevronUp size={14} className={`transition-transform ${showDownloadOptions ? 'rotate-180' : ''}`} />
+                 </motion.button>
+                
+                {/* Download Options Menu */}
+                <AnimatePresence>
+                    {showDownloadOptions && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute bottom-full left-0 right-0 mb-2 bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl overflow-hidden z-30"
+                        >
+                            <div className="p-2 space-y-1">
+                                <button onClick={() => handleDownloadCard('png', 2)} className="w-full text-left px-3 py-2 hover:bg-zinc-700 rounded-lg text-xs text-white">PNG High Res (2x)</button>
+                                <button onClick={() => handleDownloadCard('png', 1)} className="w-full text-left px-3 py-2 hover:bg-zinc-700 rounded-lg text-xs text-zinc-300">PNG Standard</button>
+                                <button onClick={() => handleDownloadCard('jpeg', 2)} className="w-full text-left px-3 py-2 hover:bg-zinc-700 rounded-lg text-xs text-zinc-300">JPG High Res</button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+             </div>
          </div>
       </div>
     </div>
